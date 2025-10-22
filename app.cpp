@@ -8,6 +8,7 @@
 #include <cstdlib>
 #include <ctime>
 #include <memory>
+#include <limits> // Include for numeric_limits
 
 // --- 1. ENUMS AND CONSTANTS ---
 // -------------------------------------------------------------
@@ -111,6 +112,7 @@ public:
         : dishId("D" + std::to_string(rand() % 1000 + 100)), name(n), price(p), type(t), cuisine(c), course(cs), rating(0.0), ratingCount(0) {}
 
     const std::string& getName() const { return name; }
+    const std::string& getId() const { return dishId; }
     double getPrice() const { return price; }
     DishType getType() const { return type; }
     CuisineType getCuisine() const { return cuisine; }
@@ -124,7 +126,7 @@ public:
 
     void display() const {
         std::cout << std::fixed << std::setprecision(2)
-                  << "   - [" << dishId << "] " << name
+                  << "    - [" << dishId << "] " << name
                   << " (" << dishTypeToString(type) << ")"
                   << " | Price: $" << price
                   << " | Rating: " << (ratingCount > 0 ? std::to_string(rating).substr(0, 3) : "N/A")
@@ -142,13 +144,13 @@ private:
 public:
     void addDish(const Dish& dish) {
         dishes.push_back(dish);
-        std::cout << "Dish '" << dish.getName() << "' added to the menu." << std::endl;
+        // Removed repetitive cout from here, it's already in the owner flow
     }
 
     void removeDish(const std::string& dishName) {
         dishes.erase(std::remove_if(dishes.begin(), dishes.end(),
-                                    [&](const Dish& d){ return d.getName() == dishName; }),
-                                    dishes.end());
+                                     [&](const Dish& d){ return d.getName() == dishName; }),
+                                     dishes.end());
     }
 
     std::vector<Dish> filterDishes(CuisineType c, CourseType cs, DishType t) const {
@@ -167,7 +169,7 @@ public:
     
     Dish* getDishByName(const std::string& name) {
         auto it = std::find_if(dishes.begin(), dishes.end(),
-                               [&](const Dish& d){ return d.getName() == name; });
+                                [&](const Dish& d){ return d.getName() == name; });
         return (it != dishes.end() ? &(*it) : nullptr);
     }
     
@@ -231,7 +233,7 @@ public:
 
     void logout() {
         if (loggedIn) {
-            std::cout << name << " (" << userId << ") logged out successfully." << std::endl;
+            std::cout << "\n" << name << " (" << userId << ") logged out successfully." << std::endl;
             loggedIn = false;
         }
     }
@@ -383,20 +385,20 @@ public:
 
     double applyDiscount(double subtotal, const Customer* cust) const {
         if (subtotal < minOrderValue) {
-            std::cout << "   [Offer Failed] Minimum order value of $" << minOrderValue << " not met." << std::endl;
+            std::cout << "    [Offer Failed] Minimum order value of $" << minOrderValue << " not met." << std::endl;
             return 0.0;
         }
         if (promoCode == "LOYALTY50" && cust && cust->getLoyaltyPoints() < 10.0) {
-            std::cout << "   [Offer Failed] Not enough loyalty points." << std::endl;
+            std::cout << "    [Offer Failed] Not enough loyalty points." << std::endl;
             return 0.0;
         }
 
         if (isPercentage) {
             double discount = subtotal * (discountValue / 100.0);
-            std::cout << "   [Offer Applied] " << discountValue << "% off: -$" << std::fixed << std::setprecision(2) << discount << std::endl;
+            std::cout << "    [Offer Applied] " << discountValue << "% off: -$" << std::fixed << std::setprecision(2) << discount << std::endl;
             return discount;
         } else {
-            std::cout << "   [Offer Applied] $" << discountValue << " off: -$" << std::fixed << std::setprecision(2) << discountValue << std::endl;
+            std::cout << "    [Offer Applied] $" << discountValue << " off: -$" << std::fixed << std::setprecision(2) << discountValue << std::endl;
             return discountValue;
         }
     }
@@ -637,13 +639,13 @@ public:
 
     User* findUser(const std::string& id) {
         auto it = std::find_if(allUsers.begin(), allUsers.end(), 
-                               [&](const User* u){ return u->getId() == id; });
+                                [&](const User* u){ return u->getId() == id; });
         return (it != allUsers.end() ? *it : nullptr);
     }
 
     Restaurant* findRestaurant(const std::string& id) {
         auto it = std::find_if(allRestaurants.begin(), allRestaurants.end(), 
-                               [&](const Restaurant* r){ return r->getId() == id; });
+                                [&](const Restaurant* r){ return r->getId() == id; });
         return (it != allRestaurants.end() ? *it : nullptr);
     }
     
@@ -681,7 +683,7 @@ public:
 
     void updateOrderStatus(const std::string& orderId, OrderStatus newStatus) {
         auto it = std::find_if(activeOrders.begin(), activeOrders.end(), 
-                               [&](const Order* o){ return o->getId() == orderId; });
+                                [&](const Order* o){ return o->getId() == orderId; });
         if (it != activeOrders.end()) {
             (*it)->setStatus(newStatus);
             notifier.sendNotification((*it)->getCustomerId(), "Order " + orderId + " status updated to: " + statusToString(newStatus));
@@ -699,7 +701,7 @@ public:
     
     void finalizeOrder(const std::string& orderId) {
         auto it = std::find_if(activeOrders.begin(), activeOrders.end(), 
-                               [&](const Order* o){ return o->getId() == orderId; });
+                                [&](const Order* o){ return o->getId() == orderId; });
         if (it != activeOrders.end()) {
              activeOrders.erase(it);
         }
@@ -769,17 +771,36 @@ void runCustomerFlow(Customer* customer, SystemManager& manager) {
     }
 
     std::cout << "\n--- Apply Filters (Optional) ---" << std::endl;
-    std::cout << "Cuisine (1:Indian, 2:Italian, 3:Chinese, 0:Any): ";
-    int c; std::cin >> c;
+    
+    // *** ADD VALIDATION ***
+    std::cout << "Cuisine (1:Indian, 2:Italian, 3:Chinese, 4:Mexican, 5:Japanese, 0:Any): ";
+    int c;
+    while (!(std::cin >> c) || c < 0 || c > 5) { // 5 is max enum val, 0 is 'Any'
+        std::cout << "Invalid input. Please enter a number (0-5): ";
+        std::cin.clear();
+        std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+    }
     if (c > 0 && c <= 5) cuisineFilter = static_cast<CuisineType>(c-1);
     
+    // *** ADD VALIDATION ***
     std::cout << "Course (1:Lunch, 2:Dinner, 0:Any): ";
-    int cs; std::cin >> cs;
+    int cs;
+    while (!(std::cin >> cs) || (cs != 0 && cs != 1 && cs != 2)) {
+        std::cout << "Invalid input. Please enter 0, 1, or 2: ";
+        std::cin.clear();
+        std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+    }
     if (cs == 1) courseFilter = CourseType::LUNCH;
     if (cs == 2) courseFilter = CourseType::DINNER;
     
+    // *** ADD VALIDATION ***
     std::cout << "Type (1:Veg, 2:Non-Veg, 0:Both): ";
-    int t; std::cin >> t;
+    int t;
+    while (!(std::cin >> t) || t < 0 || t > 2) {
+        std::cout << "Invalid input. Please enter 0, 1, or 2: ";
+        std::cin.clear();
+        std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+    }
     if (t == 1) typeFilter = DishType::VEG;
     if (t == 2) typeFilter = DishType::NON_VEG;
 
@@ -796,19 +817,35 @@ void runCustomerFlow(Customer* customer, SystemManager& manager) {
     }
     
     std::string dishInput;
-    std::cout << "Enter dish name to add (or 'DONE'): ";
-    std::cin.ignore();
+    // *** FIX 2: Change prompt to ask for ID ***
+    std::cout << "Enter dish ID to add (e.g., D257) (or 'DONE'): ";
+    std::cin.ignore(); // Clear the \n from the last std::cin >> t;
+    
     std::getline(std::cin, dishInput);
+    // *** DISH NOT FOUND FIX 1 ***
+    // Remove trailing carriage return '\r' if it exists (common on Windows)
+    if (!dishInput.empty() && dishInput.back() == '\r') {
+        dishInput.pop_back();
+    }
+
     while (dishInput != "DONE") {
+        // *** FIX 3: Change find_if to use getId() ***
         auto it = std::find_if(availableDishes.begin(), availableDishes.end(), 
-                               [&](const Dish& d){ return d.getName() == dishInput; });
+                                [&](const Dish& d){ return d.getId() == dishInput; });
         if (it != availableDishes.end()) {
             customerCart.addItem(*it);
         } else {
             std::cout << "Dish not found." << std::endl;
         }
-        std::cout << "Enter dish name to add (or 'DONE'): ";
+        // *** FIX 4: Change prompt to ask for ID ***
+        std::cout << "Enter dish ID to add (e.g., D257) (or 'DONE'): ";
+        
         std::getline(std::cin, dishInput);
+        // *** DISH NOT FOUND FIX 2 ***
+        // Also apply the fix inside the loop
+        if (!dishInput.empty() && dishInput.back() == '\r') {
+            dishInput.pop_back();
+        }
     }
 
     if (customerCart.isEmpty()) {
@@ -826,7 +863,7 @@ void runCustomerFlow(Customer* customer, SystemManager& manager) {
     std::cin >> promo;
     if (promo != "NONE") {
         auto it = std::find_if(manager.getOffers().begin(), manager.getOffers().end(), 
-                               [&](const Offer& o){ return o.getCode() == promo; });
+                                [&](const Offer& o){ return o.getCode() == promo; });
         if (it != manager.getOffers().end()) {
             newOrder->applyOffer(*it, customer);
         } else {
@@ -837,12 +874,19 @@ void runCustomerFlow(Customer* customer, SystemManager& manager) {
     newOrder->displayDetails();
     std::cout << "\n--- Payment ---" << std::endl;
     std::cout << "1. UPI\n2. COD\nSelect payment mode: ";
+    
+    // *** ADD VALIDATION ***
     int paymentChoice;
-    std::cin >> paymentChoice;
+    while (!(std::cin >> paymentChoice) || (paymentChoice != 1 && paymentChoice != 2)) {
+        std::cout << "Invalid choice. Please enter 1 for UPI or 2 for COD: ";
+        std::cin.clear();
+        std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+    }
+
     Payment* paymentMethod = nullptr;
     if (paymentChoice == 1) paymentMethod = new UPIPayment();
     else if (paymentChoice == 2) paymentMethod = new COD();
-    else { std::cout << "Invalid payment mode." << std::endl; delete newOrder; return; }
+    else { std::cout << "Invalid payment mode." << std::endl; delete newOrder; return; } // This line is now redundant but safe
 
     if (paymentMethod->processPayment(newOrder->getFinalAmount())) {
         std::cout << "✅ Payment successful via " << paymentMethod->getMode() << "!" << std::endl;
@@ -869,23 +913,43 @@ void runCustomerFlow(Customer* customer, SystemManager& manager) {
     manager.updateOrderStatus(newOrder->getId(), OrderStatus::DELIVERED);
     chat.autoGenerateMessage(OrderStatus::DELIVERED);
 
+    // *** ADD VALIDATION ***
     int tip;
     std::cout << "\n--- Tip Delivery Partner ---" << std::endl;
-    std::cout << "Tip (10, 20, 30, or custom): $";
-    std::cin >> tip;
+    std::cout << "Tip (e.g., 5, 10, 20): $";
+    while (!(std::cin >> tip) || tip < 0) {
+        std::cout << "Invalid amount. Please enter a positive number (or 0): $";
+        std::cin.clear();
+        std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+    }
     newOrder->addTip(tip);
     std::cout << "Tip of $" << tip << " added to final bill." << std::endl;
 
+    // *** ADD VALIDATION ***
     int foodRating, deliveryRating;
     std::string feedback;
     std::cout << "\n--- Rate Your Experience (1-5 Stars) ---" << std::endl;
     std::cout << "Food Rating: ";
-    std::cin >> foodRating;
+    while (!(std::cin >> foodRating) || foodRating < 1 || foodRating > 5) {
+        std::cout << "Invalid rating. Please enter a number between 1 and 5: ";
+        std::cin.clear();
+        std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+    }
     std::cout << "Delivery Rating: ";
-    std::cin >> deliveryRating;
+    while (!(std::cin >> deliveryRating) || deliveryRating < 1 || deliveryRating > 5) {
+        std::cout << "Invalid rating. Please enter a number between 1 and 5: ";
+        std::cin.clear();
+        std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+    }
+
     std::cout << "Write feedback (one line): ";
     std::cin.ignore();
     std::getline(std::cin, feedback);
+
+    // *** FIX 5: Also add carriage return fix for feedback string ***
+    if (!feedback.empty() && feedback.back() == '\r') {
+        feedback.pop_back();
+    }
 
     Rating().apply(newOrder, manager, foodRating, deliveryRating, feedback);
 
@@ -909,19 +973,59 @@ void runOwnerFlow(RestaurantOwner* owner, SystemManager& manager) {
     Restaurant* myRest = owner->getOwnedRestaurants()[0];
 
     std::cout << "\nManaging Menu for: " << myRest->getName() << std::endl;
+    
+    // *** ADD VALIDATION ***
     std::cout << "1. Add Dish\n2. View Menu\n3. Back\nSelect option: ";
     int choice;
-    std::cin >> choice;
+    while (!(std::cin >> choice) || choice < 1 || choice > 3) {
+        std::cout << "Invalid choice. Please enter 1, 2, or 3: ";
+        std::cin.clear();
+        std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+    }
     
+    // *** ADD VALIDATION AND FIX ENUM LOGIC ***
     if (choice == 1) {
-        std::string n; double p; int t, c, cs;
+        std::string n; double p; int t_in, c_in, cs_in;
         std::cout << "Dish Name: "; std::cin.ignore(); std::getline(std::cin, n);
-        std::cout << "Price: $"; std::cin >> p;
-        std::cout << "Type (1:Veg, 2:Non-Veg): "; std::cin >> t;
-        std::cout << "Cuisine (0-4): "; std::cin >> c;
-        std::cout << "Course (0-5): "; std::cin >> cs;
+        // *** FIX 6: Also add carriage return fix for this string ***
+        if (!n.empty() && n.back() == '\r') {
+            n.pop_back();
+        }
         
-        myRest->getMenu().addDish({n, p, static_cast<DishType>(t), static_cast<CuisineType>(c), static_cast<CourseType>(cs)});
+        std::cout << "Price: $";
+        while (!(std::cin >> p) || p <= 0) {
+            std::cout << "Invalid input. Please enter a valid price (e.g., 12.50): $";
+            std::cin.clear();
+            std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+        }
+
+        std::cout << "Type (1:Veg, 2:Non-Veg): ";
+        while (!(std::cin >> t_in) || (t_in != 1 && t_in != 2)) {
+            std::cout << "Invalid input. Please enter 1 for Veg or 2 for Non-Veg: ";
+            std::cin.clear();
+            std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+        }
+        DishType dishT = (t_in == 1) ? DishType::VEG : DishType::NON_VEG;
+
+
+        std::cout << "Cuisine (0:Indian, 1:Italian, 2:Chinese, 3:Mexican, 4:Japanese, 5:Other): ";
+        while (!(std::cin >> c_in) || c_in < 0 || c_in > 5) { // Fixed range 0-5
+            std::cout << "Invalid input. Please enter a number between 0 and 5: ";
+            std::cin.clear();
+            std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+        }
+        CuisineType dishC = static_cast<CuisineType>(c_in);
+
+        std::cout << "Course (0:Breakfast, 1:Brunch, 2:Lunch, 3:Snacks, 4:Dinner, 5:Dessert, 6:Any): ";
+        while (!(std::cin >> cs_in) || cs_in < 0 || cs_in > 6) { // Fixed range 0-6
+            std::cout << "Invalid input. Please enter a number between 0 and 6: ";
+            std::cin.clear();
+            std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+        }
+        CourseType dishCS = static_cast<CourseType>(cs_in);
+        
+        myRest->getMenu().addDish({n, p, dishT, dishC, dishCS});
+        std::cout << "Dish '" << n << "' added to the menu." << std::endl; // Added feedback here
     } else if (choice == 2) {
         std::cout << "\n--- Current Menu ---" << std::endl;
         for (const auto& dish : myRest->getMenu().getAllDishes()) {
@@ -942,9 +1046,14 @@ User* handleLoginOrRegister(SystemManager& manager, char userType) {
     std::string id, pass, name, extra, address;
     User* currentUser = nullptr;
 
+    // *** ADD VALIDATION ***
     std::cout << "\n---\n1. Login\n2. Register\nSelect Option: ";
     int choice;
-    std::cin >> choice;
+    while (!(std::cin >> choice) || (choice != 1 && choice != 2)) {
+        std::cout << "Invalid choice. Please enter 1 or 2: ";
+        std::cin.clear();
+        std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+    }
 
     if (choice == 2) {
         std::cout << "Enter Name: "; std::cin >> name;
@@ -952,6 +1061,10 @@ User* handleLoginOrRegister(SystemManager& manager, char userType) {
 
         if (userType == 'a') {
             std::cout << "Enter Delivery Address: "; std::cin.ignore(); std::getline(std::cin, address);
+            // *** FIX 7: Also add carriage return fix for this string ***
+            if (!address.empty() && address.back() == '\r') {
+                address.pop_back();
+            }
             currentUser = new Customer(name, pass, address);
         } else if (userType == 'b') {
             currentUser = new RestaurantOwner(name, pass);
@@ -996,30 +1109,49 @@ int main() {
     User* loggedInUser = nullptr;
 
     std::cout << "\n=======================================" << std::endl;
-    std::cout << "  ✨ Welcome to FoodMate! (C++ OOP)" << std::endl;
+    std::cout << "   ✨ Welcome to FoodMate! (C++ OOP)" << std::endl;
     std::cout << "=======================================" << std::endl;
 
-    while (!loggedInUser) {
-        std::cout << "\n1. Login as:\n   a) Customer\n   b) Restaurant Owner\n   c) Delivery Partner\nSelect User Type (a/b/c): ";
+    // *** FIX: Add a main application loop ***
+    bool appRunning = true;
+    while (appRunning) {
+        loggedInUser = nullptr; // Reset loggedInUser at the start of each loop
+
+        std::cout << "\n--- Main Menu ---" << std::endl;
+        std::cout << "1. Login as:\n   a) Customer\n   b) Restaurant Owner\n   c) Delivery Partner\n   q) Quit Application\nSelect User Type (a/b/c/q): ";
         std::cin >> userTypeChoice;
         
+        // Clear buffer
+        std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n'); 
+
+        if (userTypeChoice == 'q') {
+            appRunning = false;
+            std::cout << "\nThank you for using FoodMate. Goodbye!" << std::endl;
+            continue; // Skip to next loop iteration, which will exit
+        }
+
         if (userTypeChoice == 'a' || userTypeChoice == 'b' || userTypeChoice == 'c') {
             loggedInUser = handleLoginOrRegister(manager, userTypeChoice);
         } else {
-            std::cout << "Invalid choice. Please select 'a', 'b', or 'c'." << std::endl;
+            std::cout << "Invalid choice. Please select 'a', 'b', 'c', or 'q'." << std::endl;
+            continue; // Go back to the start of the while(appRunning) loop
         }
-    }
 
-    if (Customer* cust = dynamic_cast<Customer*>(loggedInUser)) {
-        runCustomerFlow(cust, manager);
-    } else if (RestaurantOwner* owner = dynamic_cast<RestaurantOwner*>(loggedInUser)) {
-        runOwnerFlow(owner, manager);
-    } else if (DeliveryPartner* partner = dynamic_cast<DeliveryPartner*>(loggedInUser)) {
-        runPartnerFlow(partner, manager);
-    }
-    
-    if (loggedInUser) {
-        loggedInUser->logout();
+        // If login was successful, run the appropriate flow
+        if (loggedInUser) {
+            if (Customer* cust = dynamic_cast<Customer*>(loggedInUser)) {
+                runCustomerFlow(cust, manager);
+            } else if (RestaurantOwner* owner = dynamic_cast<RestaurantOwner*>(loggedInUser)) {
+                runOwnerFlow(owner, manager);
+            } else if (DeliveryPartner* partner = dynamic_cast<DeliveryPartner*>(loggedInUser)) {
+                runPartnerFlow(partner, manager);
+            }
+            
+            // Log out the user after their flow is complete
+            loggedInUser->logout();
+            loggedInUser = nullptr; // Explicitly set to null
+        }
+        // The loop will now repeat, showing the main menu again
     }
     
     return 0;
