@@ -10,50 +10,46 @@
 #include <memory>
 #include <limits> // Include for numeric_limits
 
-// --- 1. ENUMS AND CONSTANTS ---
+using namespace std;
+
+// --- 1. CONSTANTS (Replaced Enums) ---
 // -------------------------------------------------------------
 
-enum class CuisineType { INDIAN, ITALIAN, CHINESE, MEXICAN, JAPANESE, OTHER };
-enum class CourseType { BREAKFAST, BRUNCH, LUNCH, SNACKS, DINNER, DESSERT, ANY };
-enum class DishType { VEG, NON_VEG, BOTH };
-enum class PaymentMode { UPI, CREDIT_CARD, COD, NONE };
-enum class OrderStatus { PENDING, PREPARING, OUT_FOR_DELIVERY, DELIVERED, CANCELLED };
+// CuisineType Constants
+const string CUISINE_INDIAN = "Indian";
+const string CUISINE_ITALIAN = "Italian";
+const string CUISINE_CHINESE = "Chinese";
+const string CUISINE_MEXICAN = "Mexican";
+const string CUISINE_JAPANESE = "Japanese";
+const string CUISINE_OTHER = "Other";
+const string CUISINE_ANY = "Any"; // For filtering
 
-// Helper functions for string conversion
-std::string cuisineToString(CuisineType c) {
-    switch (c) {
-        case CuisineType::INDIAN: return "Indian";
-        case CuisineType::ITALIAN: return "Italian";
-        case CuisineType::CHINESE: return "Chinese";
-        case CuisineType::MEXICAN: return "Mexican";
-        case CuisineType::JAPANESE: return "Japanese";
-        default: return "Other";
-    }
-}
-std::string courseToString(CourseType c) {
-    switch (c) {
-        case CourseType::BREAKFAST: return "Breakfast";
-        case CourseType::BRUNCH: return "Brunch";
-        case CourseType::LUNCH: return "Lunch";
-        case CourseType::SNACKS: return "Snacks";
-        case CourseType::DINNER: return "Dinner";
-        case CourseType::DESSERT: return "Dessert";
-        default: return "Any";
-    }
-}
-std::string dishTypeToString(DishType t) {
-    return (t == DishType::VEG ? "Veg" : (t == DishType::NON_VEG ? "Non-Veg" : "Both"));
-}
-std::string statusToString(OrderStatus s) {
-    switch (s) {
-        case OrderStatus::PENDING: return "Pending";
-        case OrderStatus::PREPARING: return "Preparing";
-        case OrderStatus::OUT_FOR_DELIVERY: return "Out for Delivery";
-        case OrderStatus::DELIVERED: return "Delivered";
-        case OrderStatus::CANCELLED: return "Cancelled";
-        default: return "Unknown";
-    }
-}
+// CourseType Constants
+const string COURSE_BREAKFAST = "Breakfast";
+const string COURSE_BRUNCH = "Brunch";
+const string COURSE_LUNCH = "Lunch";
+const string COURSE_SNACKS = "Snacks";
+const string COURSE_DINNER = "Dinner";
+const string COURSE_DESSERT = "Dessert";
+const string COURSE_ANY = "Any";
+
+// DishType Constants
+const string DISH_VEG = "Veg";
+const string DISH_NON_VEG = "Non-Veg";
+const string DISH_BOTH = "Both";
+
+// PaymentMode (Not actively used as enum, but let's be consistent)
+const string PAY_UPI = "UPI";
+const string PAY_CREDIT_CARD = "Credit Card";
+const string PAY_COD = "Cash On Delivery (COD)";
+const string PAY_NONE = "None";
+
+// OrderStatus Constants
+const string STATUS_PENDING = "Pending";
+const string STATUS_PREPARING = "Preparing";
+const string STATUS_OUT_FOR_DELIVERY = "Out for Delivery";
+const string STATUS_DELIVERED = "Delivered";
+const string STATUS_CANCELLED = "Cancelled";
 
 
 // --- 2. FORWARD DECLARATIONS ---
@@ -80,9 +76,9 @@ private:
     static long long restaurantCounter;
     static long long orderCounter;
 public:
-    static std::string generateUserID() { return "U" + std::to_string(++userCounter); }
-    static std::string generateRestaurantID() { return "R" + std::to_string(++restaurantCounter); }
-    static std::string generateOrderID() { return "O" + std::to_string(++orderCounter); }
+    static string generateUserID() { return "U" + to_string(++userCounter); }
+    static string generateRestaurantID() { return "R" + to_string(++restaurantCounter); }
+    static string generateOrderID() { return "O" + to_string(++orderCounter); }
 };
 long long IDGenerator::userCounter = 1000;
 long long IDGenerator::restaurantCounter = 500;
@@ -90,8 +86,8 @@ long long IDGenerator::orderCounter = 100;
 
 class Notification {
 public:
-    void sendNotification(const std::string& userId, const std::string& message) const {
-        std::cout << "\n[Notification to " << userId << "]: " << message << std::endl;
+    void sendNotification(const string& userId, const string& message) const {
+        cout << "\n[Notification to " << userId << "]: " << message << endl;
     }
 };
 
@@ -99,24 +95,25 @@ public:
 // -------------------------------------------------------------
 class Dish {
 private:
-    std::string dishId;
-    std::string name;
+    string dishId;
+    string name;
     double price;
-    DishType type;
-    CuisineType cuisine;
-    CourseType course;
+    string type;    // Changed from DishType
+    string cuisine; // Changed from CuisineType
+    string course;  // Changed from CourseType
     double rating;
     int ratingCount;
 public:
-    Dish(const std::string& n, double p, DishType t, CuisineType c, CourseType cs)
-        : dishId("D" + std::to_string(rand() % 1000 + 100)), name(n), price(p), type(t), cuisine(c), course(cs), rating(0.0), ratingCount(0) {}
+    // Constructor updated to take strings
+    Dish(const string& n, double p, const string& t, const string& c, const string& cs)
+        : dishId("D" + to_string(rand() % 1000 + 100)), name(n), price(p), type(t), cuisine(c), course(cs), rating(0.0), ratingCount(0) {}
 
-    const std::string& getName() const { return name; }
-    const std::string& getId() const { return dishId; }
+    const string& getName() const { return name; }
+    const string& getId() const { return dishId; }
     double getPrice() const { return price; }
-    DishType getType() const { return type; }
-    CuisineType getCuisine() const { return cuisine; }
-    CourseType getCourse() const { return course; }
+    const string& getType() const { return type; }       // Return string
+    const string& getCuisine() const { return cuisine; } // Return string
+    const string& getCourse() const { return course; }   // Return string
     double getRating() const { return rating; }
 
     void updateRating(int newRating) {
@@ -125,12 +122,12 @@ public:
     }
 
     void display() const {
-        std::cout << std::fixed << std::setprecision(2)
+        cout << fixed << setprecision(2)
                   << "    - [" << dishId << "] " << name
-                  << " (" << dishTypeToString(type) << ")"
+                  << " (" << type << ")" // Use string member directly
                   << " | Price: $" << price
-                  << " | Rating: " << (ratingCount > 0 ? std::to_string(rating).substr(0, 3) : "N/A")
-                  << std::endl;
+                  << " | Rating: " << (ratingCount > 0 ? to_string(rating).substr(0, 3) : "N/A")
+                  << endl;
     }
 };
 
@@ -140,25 +137,25 @@ bool operator<(const Dish& a, const Dish& b) {
 
 class Menu {
 private:
-    std::vector<Dish> dishes;
+    vector<Dish> dishes;
 public:
     void addDish(const Dish& dish) {
         dishes.push_back(dish);
-        // Removed repetitive cout from here, it's already in the owner flow
     }
 
-    void removeDish(const std::string& dishName) {
-        dishes.erase(std::remove_if(dishes.begin(), dishes.end(),
+    void removeDish(const string& dishName) {
+        dishes.erase(remove_if(dishes.begin(), dishes.end(),
                                      [&](const Dish& d){ return d.getName() == dishName; }),
                                      dishes.end());
     }
 
-    std::vector<Dish> filterDishes(CuisineType c, CourseType cs, DishType t) const {
-        std::vector<Dish> result;
+    // Updated to take and check strings
+    vector<Dish> filterDishes(const string& c, const string& cs, const string& t) const {
+        vector<Dish> result;
         for (const auto& dish : dishes) {
-            bool cuisineMatch = (c == CuisineType::OTHER) || (dish.getCuisine() == c);
-            bool courseMatch = (cs == CourseType::ANY) || (dish.getCourse() == cs);
-            bool typeMatch = (t == DishType::BOTH) || (dish.getType() == t);
+            bool cuisineMatch = (c == CUISINE_ANY) || (dish.getCuisine() == c);
+            bool courseMatch = (cs == COURSE_ANY) || (dish.getCourse() == cs);
+            bool typeMatch = (t == DISH_BOTH) || (dish.getType() == t);
 
             if (cuisineMatch && courseMatch && typeMatch) {
                 result.push_back(dish);
@@ -167,45 +164,46 @@ public:
         return result;
     }
     
-    Dish* getDishByName(const std::string& name) {
-        auto it = std::find_if(dishes.begin(), dishes.end(),
+    Dish* getDishByName(const string& name) {
+        auto it = find_if(dishes.begin(), dishes.end(),
                                 [&](const Dish& d){ return d.getName() == name; });
         return (it != dishes.end() ? &(*it) : nullptr);
     }
     
-    const std::vector<Dish>& getAllDishes() const { return dishes; }
+    const vector<Dish>& getAllDishes() const { return dishes; }
 };
 
 // --- 5. RESTAURANT ---
 // -------------------------------------------------------------
 class Restaurant {
 private:
-    std::string restaurantId;
-    std::string name;
-    CuisineType cuisine;
+    string restaurantId;
+    string name;
+    string cuisine; // Changed from CuisineType
     double rating;
     int ratingCount;
-    std::vector<std::string> branches;
-    std::string contactEmail;
+    vector<string> branches;
+    string contactEmail;
     Menu menu;
 public:
-    Restaurant(const std::string& n, CuisineType c, const std::string& email)
+    // Constructor updated to take string
+    Restaurant(const string& n, const string& c, const string& email)
         : restaurantId(IDGenerator::generateRestaurantID()), name(n), cuisine(c), rating(4.5), ratingCount(1), contactEmail(email) {
         branches.push_back("Main Street Branch");
     }
 
-    const std::string& getId() const { return restaurantId; }
-    const std::string& getName() const { return name; }
-    CuisineType getCuisine() const { return cuisine; }
+    const string& getId() const { return restaurantId; }
+    const string& getName() const { return name; }
+    const string& getCuisine() const { return cuisine; } // Return string
     double getRating() const { return rating; }
     Menu& getMenu() { return menu; }
 
     void displayInfo() const {
-        std::cout << std::fixed << std::setprecision(1)
-                  << "[" << restaurantId << "] " << name << " (" << cuisineToString(cuisine) << ")"
+        cout << fixed << setprecision(1)
+                  << "[" << restaurantId << "] " << name << " (" << cuisine << ")" // Use string member directly
                   << " | Rating: " << rating << "⭐"
                   << " | Branches: " << branches.size()
-                  << std::endl;
+                  << endl;
     }
 
     void updateRating(int newRating) {
@@ -218,144 +216,144 @@ public:
 // -------------------------------------------------------------
 class User {
 protected:
-    std::string userId;
-    std::string name;
-    std::string password;
+    string userId;
+    string name;
+    string password;
     bool loggedIn;
 public:
-    User(const std::string& n, const std::string& p)
+    User(const string& n, const string& p)
         : userId(IDGenerator::generateUserID()), name(n), password(p), loggedIn(false) {}
     virtual ~User() = default;
 
-    virtual bool login(const std::string& id, const std::string& pass) = 0;
+    virtual bool login(const string& id, const string& pass) = 0;
     virtual void viewProfile() const = 0;
     virtual bool registerUser() = 0;
 
     void logout() {
         if (loggedIn) {
-            std::cout << "\n" << name << " (" << userId << ") logged out successfully." << std::endl;
+            cout << "\n" << name << " (" << userId << ") logged out successfully." << endl;
             loggedIn = false;
         }
     }
 
-    const std::string& getId() const { return userId; }
-    const std::string& getName() const { return name; }
+    const string& getId() const { return userId; }
+    const string& getName() const { return name; }
     bool isLoggedIn() const { return loggedIn; }
 };
 
 class Customer : public User {
 private:
-    std::string deliveryAddress;
-    std::vector<Order*> orderHistory;
+    string deliveryAddress;
+    vector<Order*> orderHistory;
     double loyaltyPoints;
 public:
-    Customer(const std::string& n, const std::string& p, const std::string& addr)
+    Customer(const string& n, const string& p, const string& addr)
         : User(n, p), deliveryAddress(addr), loyaltyPoints(0.0) {}
 
     bool registerUser() override {
-        std::cout << "\n✅ Customer " << name << " registered successfully with ID: " << userId << std::endl;
+        cout << "\n✅ Customer " << name << " registered successfully with ID: " << userId << endl;
         return true;
     }
 
-    bool login(const std::string& id, const std::string& pass) override {
+    bool login(const string& id, const string& pass) override {
         if (userId == id && password == pass) {
             loggedIn = true;
-            std::cout << "\n👋 Welcome back, Customer " << name << "!" << std::endl;
+            cout << "\n👋 Welcome back, Customer " << name << "!" << endl;
             return true;
         }
         return false;
     }
 
     void viewProfile() const override {
-        std::cout << "\n--- Customer Profile ---" << std::endl;
-        std::cout << "ID: " << userId << std::endl;
-        std::cout << "Name: " << name << std::endl;
-        std::cout << "Address: " << deliveryAddress << std::endl;
-        std::cout << "Loyalty Points: " << loyaltyPoints << std::endl;
-        std::cout << "Past Orders: " << orderHistory.size() << std::endl;
+        cout << "\n--- Customer Profile ---" << endl;
+        cout << "ID: " << userId << endl;
+        cout << "Name: " << name << endl;
+        cout << "Address: " << deliveryAddress << endl;
+        cout << "Loyalty Points: " << loyaltyPoints << endl;
+        cout << "Past Orders: " << orderHistory.size() << endl;
     }
 
     void addOrderToHistory(Order* order) {
         orderHistory.push_back(order);
     }
     
-    const std::string& getAddress() const { return deliveryAddress; }
+    const string& getAddress() const { return deliveryAddress; }
     double getLoyaltyPoints() const { return loyaltyPoints; }
     void addLoyaltyPoints(double points) { loyaltyPoints += points; }
 };
 
 class RestaurantOwner : public User {
 private:
-    std::vector<Restaurant*> ownedRestaurants;
+    vector<Restaurant*> ownedRestaurants;
 public:
-    RestaurantOwner(const std::string& n, const std::string& p)
+    RestaurantOwner(const string& n, const string& p)
         : User(n, p) {}
 
     bool registerUser() override {
-        std::cout << "\n✅ Restaurant Owner " << name << " registered successfully with ID: " << userId << std::endl;
+        cout << "\n✅ Restaurant Owner " << name << " registered successfully with ID: " << userId << endl;
         return true;
     }
 
-    bool login(const std::string& id, const std::string& pass) override {
+    bool login(const string& id, const string& pass) override {
         if (userId == id && password == pass) {
             loggedIn = true;
-            std::cout << "\n📋 Welcome to your dashboard, Owner " << name << "!" << std::endl;
+            cout << "\n📋 Welcome to your dashboard, Owner " << name << "!" << endl;
             return true;
         }
         return false;
     }
 
     void viewProfile() const override {
-        std::cout << "\n--- Restaurant Owner Profile ---" << std::endl;
-        std::cout << "ID: " << userId << std::endl;
-        std::cout << "Name: " << name << std::endl;
-        std::cout << "Owned Restaurants: " << ownedRestaurants.size() << std::endl;
+        cout << "\n--- Restaurant Owner Profile ---" << endl;
+        cout << "ID: " << userId << endl;
+        cout << "Name: " << name << endl;
+        cout << "Owned Restaurants: " << ownedRestaurants.size() << endl;
         for (const auto& r : ownedRestaurants) {
-            std::cout << "  - " << r->getName() << " (" << r->getId() << ")" << std::endl;
+            cout << "  - " << r->getName() << " (" << r->getId() << ")" << endl;
         }
     }
 
     void addRestaurant(Restaurant* r) {
         ownedRestaurants.push_back(r);
-        std::cout << "Restaurant '" << r->getName() << "' added to your portfolio." << std::endl;
+        cout << "Restaurant '" << r->getName() << "' added to your portfolio." << endl;
     }
 
-    const std::vector<Restaurant*>& getOwnedRestaurants() const { return ownedRestaurants; }
+    const vector<Restaurant*>& getOwnedRestaurants() const { return ownedRestaurants; }
 };
 
 class DeliveryPartner : public User {
 private:
-    std::string vehicleType;
+    string vehicleType;
     double totalEarnings;
     double averageRating;
     int ratingCount;
     bool isAvailable;
 public:
-    DeliveryPartner(const std::string& n, const std::string& p, const std::string& vehicle)
+    DeliveryPartner(const string& n, const string& p, const string& vehicle)
         : User(n, p), vehicleType(vehicle), totalEarnings(0.0), averageRating(5.0), ratingCount(1), isAvailable(true) {}
 
     bool registerUser() override {
-        std::cout << "\n✅ Delivery Partner " << name << " registered successfully with ID: " << userId << std::endl;
+        cout << "\n✅ Delivery Partner " << name << " registered successfully with ID: " << userId << endl;
         return true;
     }
 
-    bool login(const std::string& id, const std::string& pass) override {
+    bool login(const string& id, const string& pass) override {
         if (userId == id && password == pass) {
             loggedIn = true;
-            std::cout << "\n🏍️ Ready to deliver, Partner " << name << "!" << std::endl;
+            cout << "\n🏍️ Ready to deliver, Partner " << name << "!" << endl;
             return true;
         }
         return false;
     }
 
     void viewProfile() const override {
-        std::cout << "\n--- Delivery Partner Profile ---" << std::endl;
-        std::cout << "ID: " << userId << std::endl;
-        std::cout << "Name: " << name << std::endl;
-        std::cout << "Vehicle: " << vehicleType << std::endl;
-        std::cout << "Earnings: $" << std::fixed << std::setprecision(2) << totalEarnings << std::endl;
-        std::cout << "Rating: " << std::fixed << std::setprecision(1) << averageRating << "⭐" << std::endl;
-        std::cout << "Status: " << (isAvailable ? "Available" : "On Delivery") << std::endl;
+        cout << "\n--- Delivery Partner Profile ---" << endl;
+        cout << "ID: " << userId << endl;
+        cout << "Name: " << name << endl;
+        cout << "Vehicle: " << vehicleType << endl;
+        cout << "Earnings: $" << fixed << setprecision(2) << totalEarnings << endl;
+        cout << "Rating: " << fixed << setprecision(1) << averageRating << "⭐" << endl;
+        cout << "Status: " << (isAvailable ? "Available" : "On Delivery") << endl;
     }
 
     void completeDelivery(double earnings, int rating) {
@@ -373,32 +371,32 @@ public:
 // -------------------------------------------------------------
 class Offer {
 private:
-    std::string promoCode;
+    string promoCode;
     double discountValue;
     bool isPercentage;
     int minOrderValue;
 public:
-    Offer(const std::string& code, double value, bool isP, int minVal)
+    Offer(const string& code, double value, bool isP, int minVal)
         : promoCode(code), discountValue(value), isPercentage(isP), minOrderValue(minVal) {}
 
-    const std::string& getCode() const { return promoCode; }
+    const string& getCode() const { return promoCode; }
 
     double applyDiscount(double subtotal, const Customer* cust) const {
         if (subtotal < minOrderValue) {
-            std::cout << "    [Offer Failed] Minimum order value of $" << minOrderValue << " not met." << std::endl;
+            cout << "    [Offer Failed] Minimum order value of $" << minOrderValue << " not met." << endl;
             return 0.0;
         }
         if (promoCode == "LOYALTY50" && cust && cust->getLoyaltyPoints() < 10.0) {
-            std::cout << "    [Offer Failed] Not enough loyalty points." << std::endl;
+            cout << "    [Offer Failed] Not enough loyalty points." << endl;
             return 0.0;
         }
 
         if (isPercentage) {
             double discount = subtotal * (discountValue / 100.0);
-            std::cout << "    [Offer Applied] " << discountValue << "% off: -$" << std::fixed << std::setprecision(2) << discount << std::endl;
+            cout << "    [Offer Applied] " << discountValue << "% off: -$" << fixed << setprecision(2) << discount << endl;
             return discount;
         } else {
-            std::cout << "    [Offer Applied] $" << discountValue << " off: -$" << std::fixed << std::setprecision(2) << discountValue << std::endl;
+            cout << "    [Offer Applied] $" << discountValue << " off: -$" << fixed << setprecision(2) << discountValue << endl;
             return discountValue;
         }
     }
@@ -406,18 +404,18 @@ public:
 
 class Cart {
 private:
-    std::map<Dish, int> items;
+    map<Dish, int> items;
 public:
     void addItem(const Dish& dish, int quantity = 1) {
         items[dish] += quantity;
-        std::cout << quantity << "x " << dish.getName() << " added to cart." << std::endl;
+        cout << quantity << "x " << dish.getName() << " added to cart." << endl;
     }
 
-    void removeItem(const std::string& dishName) {
+    void removeItem(const string& dishName) {
         for (auto it = items.begin(); it != items.end(); ++it) {
             if (it->first.getName() == dishName) {
                 items.erase(it);
-                std::cout << dishName << " removed from cart." << std::endl;
+                cout << dishName << " removed from cart." << endl;
                 return;
             }
         }
@@ -432,35 +430,35 @@ public:
     }
 
     void displayCart() const {
-        std::cout << "\n--- Your Cart ---" << std::endl;
+        cout << "\n--- Your Cart ---" << endl;
         if (items.empty()) {
-            std::cout << "Cart is empty." << std::endl;
+            cout << "Cart is empty." << endl;
             return;
         }
         for (const auto& pair : items) {
-            std::cout << std::fixed << std::setprecision(2)
+            cout << fixed << setprecision(2)
                       << pair.second << "x " << pair.first.getName()
                       << " @ $" << pair.first.getPrice()
                       << " = $" << (pair.first.getPrice() * pair.second)
-                      << std::endl;
+                      << endl;
         }
-        std::cout << "Subtotal: $" << calculateSubtotal() << std::endl;
-        std::cout << "-----------------" << std::endl;
+        cout << "Subtotal: $" << calculateSubtotal() << endl;
+        cout << "-----------------" << endl;
     }
 
-    const std::map<Dish, int>& getItems() const { return items; }
+    const map<Dish, int>& getItems() const { return items; }
     bool isEmpty() const { return items.empty(); }
 };
 
 class Order {
 private:
-    std::string orderID;
-    std::string customerId;
-    std::string restaurantId;
-    std::string partnerId;
+    string orderID;
+    string customerId;
+    string restaurantId;
+    string partnerId;
     Cart orderCart;
-    std::string deliveryAddress;
-    OrderStatus status;
+    string deliveryAddress;
+    string status; // Changed from OrderStatus
     double subtotal;
     double discountApplied;
     double deliveryTip;
@@ -468,15 +466,15 @@ private:
 public:
     Order(const Customer* c, const Restaurant* r, const Cart& cart)
         : orderID(IDGenerator::generateOrderID()), customerId(c->getId()), restaurantId(r->getId()),
-          orderCart(cart), deliveryAddress(c->getAddress()), status(OrderStatus::PENDING),
+          orderCart(cart), deliveryAddress(c->getAddress()), status(STATUS_PENDING), // Use string constant
           subtotal(cart.calculateSubtotal()), discountApplied(0.0), deliveryTip(0.0), finalAmount(subtotal) {}
 
-    const std::string& getId() const { return orderID; }
-    const std::string& getCustomerId() const { return customerId; }
-    const std::string& getRestaurantId() const { return restaurantId; }
-    OrderStatus getStatus() const { return status; }
+    const string& getId() const { return orderID; }
+    const string& getCustomerId() const { return customerId; }
+    const string& getRestaurantId() const { return restaurantId; }
+    const string& getStatus() const { return status; } // Return string
     double getFinalAmount() const { return finalAmount; }
-    const std::string& getPartnerId() const { return partnerId; }
+    const string& getPartnerId() const { return partnerId; }
 
     void applyOffer(const Offer& offer, const Customer* cust) {
         discountApplied = offer.applyDiscount(subtotal, cust);
@@ -488,30 +486,30 @@ public:
         finalAmount += tip;
     }
 
-    void setStatus(OrderStatus newStatus) {
+    void setStatus(const string& newStatus) { // Take string
         status = newStatus;
     }
 
-    void assignPartner(const std::string& pId) {
+    void assignPartner(const string& pId) {
         partnerId = pId;
     }
 
     void displayDetails() const {
-        std::cout << "\n===================================" << std::endl;
-        std::cout << "          ORDER SUMMARY" << std::endl;
-        std::cout << "===================================" << std::endl;
-        std::cout << "Order ID: " << orderID << std::endl;
-        std::cout << "Status: " << statusToString(status) << std::endl;
-        std::cout << "Delivery To: " << deliveryAddress << std::endl;
-        std::cout << "Subtotal: $" << std::fixed << std::setprecision(2) << subtotal << std::endl;
-        std::cout << "Discount: -$" << std::fixed << std::setprecision(2) << discountApplied << std::endl;
-        std::cout << "Tip: $" << std::fixed << std::setprecision(2) << deliveryTip << std::endl;
-        std::cout << "-----------------------------------" << std::endl;
-        std::cout << "TOTAL: $" << std::fixed << std::setprecision(2) << finalAmount << std::endl;
-        std::cout << "===================================" << std::endl;
+        cout << "\n===================================" << endl;
+        cout << "          ORDER SUMMARY" << endl;
+        cout << "===================================" << endl;
+        cout << "Order ID: " << orderID << endl;
+        cout << "Status: " << status << endl; // Use string member directly
+        cout << "Delivery To: " << deliveryAddress << endl;
+        cout << "Subtotal: $" << fixed << setprecision(2) << subtotal << endl;
+        cout << "Discount: -$" << fixed << setprecision(2) << discountApplied << endl;
+        cout << "Tip: $" << fixed << setprecision(2) << deliveryTip << endl;
+        cout << "-----------------------------------" << endl;
+        cout << "TOTAL: $" << fixed << setprecision(2) << finalAmount << endl;
+        cout << "===================================" << endl;
     }
 
-    const std::map<Dish, int>& getDishes() const { return orderCart.getItems(); }
+    const map<Dish, int>& getDishes() const { return orderCart.getItems(); }
     double getTip() const { return deliveryTip; }
 };
 
@@ -520,62 +518,59 @@ public:
 class Payment {
 public:
     virtual bool processPayment(double amount) const = 0;
-    virtual std::string getMode() const = 0;
+    virtual string getMode() const = 0;
     virtual ~Payment() = default;
 };
 
 class UPIPayment : public Payment {
 public:
     bool processPayment(double amount) const override {
-        std::cout << "Processing UPI Payment of $" << std::fixed << std::setprecision(2) << amount << "..." << std::endl;
+        cout << "Processing UPI Payment of $" << fixed << setprecision(2) << amount << "..." << endl;
         return (rand() % 100 < 90);
     }
-    std::string getMode() const override { return "UPI"; }
+    string getMode() const override { return PAY_UPI; }
 };
 
 class COD : public Payment {
 public:
     bool processPayment(double amount) const override {
-        std::cout << "Cash on Delivery confirmed. Please keep $" << std::fixed << std::setprecision(2) << amount << " ready." << std::endl;
+        cout << "Cash on Delivery confirmed. Please keep $" << fixed << setprecision(2) << amount << " ready." << endl;
         return true;
     }
-    std::string getMode() const override { return "Cash On Delivery (COD)"; }
+    string getMode() const override { return PAY_COD; }
 };
 
 class Chat {
 private:
-    std::string orderId;
-    std::vector<std::pair<std::string, std::string>> messages;
+    string orderId;
+    vector<pair<string, string>> messages;
 public:
-    Chat(const std::string& oId) : orderId(oId) {}
+    Chat(const string& oId) : orderId(oId) {}
 
-    void sendMessage(const std::string& sender, const std::string& text) {
+    void sendMessage(const string& sender, const string& text) {
         messages.push_back({sender, text});
-        std::cout << "[" << sender << "]: " << text << std::endl;
+        cout << "[" << sender << "]: " << text << endl;
     }
 
-    void autoGenerateMessage(OrderStatus status) {
-        std::string autoMessage;
-        switch (status) {
-            case OrderStatus::PREPARING:
-                autoMessage = "Your order is being prepared by the restaurant!";
-                break;
-            case OrderStatus::OUT_FOR_DELIVERY:
-                autoMessage = "Your food is out for delivery and should reach you shortly!";
-                break;
-            case OrderStatus::DELIVERED:
-                autoMessage = "Enjoy your meal! Please don't forget to rate.";
-                break;
-            default:
-                return;
+    // Updated to check string constants
+    void autoGenerateMessage(const string& status) {
+        string autoMessage;
+        if (status == STATUS_PREPARING) {
+            autoMessage = "Your order is being prepared by the restaurant!";
+        } else if (status == STATUS_OUT_FOR_DELIVERY) {
+            autoMessage = "Your food is out for delivery and should reach you shortly!";
+        } else if (status == STATUS_DELIVERED) {
+            autoMessage = "Enjoy your meal! Please don't forget to rate.";
+        } else {
+            return;
         }
         sendMessage("System Bot", autoMessage);
     }
 
     void displayHistory() const {
-        std::cout << "\n--- Chat History for " << orderId << " ---" << std::endl;
+        cout << "\n--- Chat History for " << orderId << " ---" << endl;
         for (const auto& msg : messages) {
-            std::cout << "[" << msg.first << "]: " << msg.second << std::endl;
+            cout << "[" << msg.first << "]: " << msg.second << endl;
         }
     }
 };
@@ -586,7 +581,7 @@ class SystemManager;
 
 class Rating {
 public:
-    void apply(Order* order, SystemManager& manager, int foodStars, int deliveryStars, const std::string& feedback);
+    void apply(Order* order, SystemManager& manager, int foodStars, int deliveryStars, const string& feedback);
 };
 
 
@@ -594,10 +589,10 @@ public:
 // -------------------------------------------------------------
 class SystemManager {
 private:
-    std::vector<User*> allUsers;
-    std::vector<Restaurant*> allRestaurants;
-    std::vector<Order*> activeOrders;
-    std::vector<Offer> availableOffers;
+    vector<User*> allUsers;
+    vector<Restaurant*> allRestaurants;
+    vector<Order*> activeOrders;
+    vector<Offer> availableOffers;
     Notification notifier;
 
     void seedData() {
@@ -605,14 +600,15 @@ private:
         allUsers.push_back(new RestaurantOwner("ChefBob", "pass"));
         allUsers.push_back(new DeliveryPartner("Dan", "pass", "Bike"));
         
-        Restaurant* r1 = new Restaurant("Spice Garden", CuisineType::INDIAN, "spice@mail.com");
-        r1->getMenu().addDish({"Paneer Butter Masala", 12.50, DishType::VEG, CuisineType::INDIAN, CourseType::DINNER});
-        r1->getMenu().addDish({"Veg Biryani", 10.00, DishType::VEG, CuisineType::INDIAN, CourseType::LUNCH});
-        r1->getMenu().addDish({"Chicken Tikka", 15.00, DishType::NON_VEG, CuisineType::INDIAN, CourseType::DINNER});
+        // Updated to use string constants in constructors
+        Restaurant* r1 = new Restaurant("Spice Garden", CUISINE_INDIAN, "spice@mail.com");
+        r1->getMenu().addDish({"Paneer Butter Masala", 12.50, DISH_VEG, CUISINE_INDIAN, COURSE_DINNER});
+        r1->getMenu().addDish({"Veg Biryani", 10.00, DISH_VEG, CUISINE_INDIAN, COURSE_LUNCH});
+        r1->getMenu().addDish({"Chicken Tikka", 15.00, DISH_NON_VEG, CUISINE_INDIAN, COURSE_DINNER});
         
-        Restaurant* r2 = new Restaurant("Pizza Hub", CuisineType::ITALIAN, "pizza@mail.com");
-        r2->getMenu().addDish({"Margherita Pizza", 18.00, DishType::VEG, CuisineType::ITALIAN, CourseType::DINNER});
-        r2->getMenu().addDish({"Pepperoni Pizza", 20.00, DishType::NON_VEG, CuisineType::ITALIAN, CourseType::DINNER});
+        Restaurant* r2 = new Restaurant("Pizza Hub", CUISINE_ITALIAN, "pizza@mail.com");
+        r2->getMenu().addDish({"Margherita Pizza", 18.00, DISH_VEG, CUISINE_ITALIAN, COURSE_DINNER});
+        r2->getMenu().addDish({"Pepperoni Pizza", 20.00, DISH_NON_VEG, CUISINE_ITALIAN, COURSE_DINNER});
 
         allRestaurants.push_back(r1);
         allRestaurants.push_back(r2);
@@ -628,7 +624,7 @@ public:
     SystemManager() {
         srand(time(0));
         seedData();
-        std::cout << "FoodMate System Initialized." << std::endl;
+        cout << "FoodMate System Initialized." << endl;
     }
 
     ~SystemManager() {
@@ -637,27 +633,26 @@ public:
         for (Order* o : activeOrders) delete o;
     }
 
-    User* findUser(const std::string& id) {
-        auto it = std::find_if(allUsers.begin(), allUsers.end(), 
+    User* findUser(const string& id) {
+        auto it = find_if(allUsers.begin(), allUsers.end(), 
                                 [&](const User* u){ return u->getId() == id; });
         return (it != allUsers.end() ? *it : nullptr);
     }
 
-    Restaurant* findRestaurant(const std::string& id) {
-        auto it = std::find_if(allRestaurants.begin(), allRestaurants.end(), 
+    Restaurant* findRestaurant(const string& id) {
+        auto it = find_if(allRestaurants.begin(), allRestaurants.end(), 
                                 [&](const Restaurant* r){ return r->getId() == id; });
         return (it != allRestaurants.end() ? *it : nullptr);
     }
     
     // Public Accessors
-    const std::vector<Restaurant*>& getRestaurants() const { return allRestaurants; }
-    const std::vector<Offer>& getOffers() const { return availableOffers; }
-    const std::vector<User*>& getUsers() const { return allUsers; }
+    const vector<Restaurant*>& getRestaurants() const { return allRestaurants; }
+    const vector<Offer>& getOffers() const { return availableOffers; }
+    const vector<User*>& getUsers() const { return allUsers; }
     
     // User Management
     void addUser(User* u) { allUsers.push_back(u); }
     
-    // FIX FOR LINE 959 (Part 1): Add a dedicated public method to add a restaurant.
     void addRestaurant(Restaurant* r) {
         allRestaurants.push_back(r);
     }
@@ -665,7 +660,8 @@ public:
     // Order Management
     void placeOrder(Order* order) {
         activeOrders.push_back(order);
-        notifier.sendNotification(order->getCustomerId(), "Order " + order->getId() + " received! Status: " + statusToString(order->getStatus()));
+        // Use string getter directly
+        notifier.sendNotification(order->getCustomerId(), "Order " + order->getId() + " received! Status: " + order->getStatus());
         
         DeliveryPartner* partner = nullptr;
         for (User* u : allUsers) {
@@ -682,14 +678,15 @@ public:
         }
     }
 
-    void updateOrderStatus(const std::string& orderId, OrderStatus newStatus) {
-        auto it = std::find_if(activeOrders.begin(), activeOrders.end(), 
+    void updateOrderStatus(const string& orderId, const string& newStatus) { // Take string
+        auto it = find_if(activeOrders.begin(), activeOrders.end(), 
                                 [&](const Order* o){ return o->getId() == orderId; });
         if (it != activeOrders.end()) {
             (*it)->setStatus(newStatus);
-            notifier.sendNotification((*it)->getCustomerId(), "Order " + orderId + " status updated to: " + statusToString(newStatus));
+            // Use newStatus string directly
+            notifier.sendNotification((*it)->getCustomerId(), "Order " + orderId + " status updated to: " + newStatus);
             
-            if (newStatus == OrderStatus::DELIVERED) {
+            if (newStatus == STATUS_DELIVERED) {
                 Order* completedOrder = *it;
                 Customer* cust = dynamic_cast<Customer*>(findUser(completedOrder->getCustomerId()));
                 if (cust) {
@@ -700,8 +697,8 @@ public:
         }
     }
     
-    void finalizeOrder(const std::string& orderId) {
-        auto it = std::find_if(activeOrders.begin(), activeOrders.end(), 
+    void finalizeOrder(const string& orderId) {
+        auto it = find_if(activeOrders.begin(), activeOrders.end(), 
                                 [&](const Order* o){ return o->getId() == orderId; });
         if (it != activeOrders.end()) {
              activeOrders.erase(it);
@@ -709,7 +706,7 @@ public:
     }
 };
 
-void Rating::apply(Order* order, SystemManager& manager, int foodStars, int deliveryStars, const std::string& feedback) {
+void Rating::apply(Order* order, SystemManager& manager, int foodStars, int deliveryStars, const string& feedback) {
     Restaurant* restaurant = manager.findRestaurant(order->getRestaurantId());
     if (restaurant) {
         restaurant->updateRating(foodStars);
@@ -722,8 +719,6 @@ void Rating::apply(Order* order, SystemManager& manager, int foodStars, int deli
         }
     }
 
-    // FIX FOR LINE 706: Ensure the public getter getPartnerId() is used, as partnerId is private.
-    // This line is now correct and will compile.
     if (!order->getPartnerId().empty()) {
         DeliveryPartner* partner = dynamic_cast<DeliveryPartner*>(manager.findUser(order->getPartnerId()));
         if (partner) {
@@ -731,10 +726,10 @@ void Rating::apply(Order* order, SystemManager& manager, int foodStars, int deli
         }
     }
 
-    std::cout << "\n⭐ Thank you for your feedback! Food Rated: " << foodStars 
-              << ", Delivery Rated: " << deliveryStars << "." << std::endl;
+    cout << "\n⭐ Thank you for your feedback! Food Rated: " << foodStars 
+              << ", Delivery Rated: " << deliveryStars << "." << endl;
     if (!feedback.empty()) {
-        std::cout << "Your textual feedback: \"" << feedback << "\" has been recorded." << std::endl;
+        cout << "Your textual feedback: \"" << feedback << "\" has been recorded." << endl;
     }
     
     manager.finalizeOrder(order->getId());
@@ -752,283 +747,294 @@ void runCustomerFlow(Customer* customer, SystemManager& manager) {
     if (!customer) return;
 
     Restaurant* selectedRestaurant = nullptr;
-    CuisineType cuisineFilter = CuisineType::OTHER;
-    CourseType courseFilter = CourseType::ANY;
-    DishType typeFilter = DishType::BOTH;
+    // Filters are now strings
+    string cuisineFilter = CUISINE_ANY;
+    string courseFilter = COURSE_ANY;
+    string typeFilter = DISH_BOTH;
 
-    std::cout << "\n### Welcome " << customer->getName() << "! Start Ordering ###" << std::endl;
+    cout << "\n### Welcome " << customer->getName() << "! Start Ordering ###" << endl;
 
-    std::cout << "\n--- Select Restaurant ---" << std::endl;
+    cout << "\n--- Select Restaurant ---" << endl;
     for (const auto& r : manager.getRestaurants()) {
         r->displayInfo();
     }
-    std::string restId;
-    std::cout << "Enter Restaurant ID (e.g., R501): ";
-    std::cin >> restId;
+    string restId;
+    cout << "Enter Restaurant ID (e.g., R501): ";
+    cin >> restId;
     selectedRestaurant = manager.findRestaurant(restId);
     if (!selectedRestaurant) {
-        std::cout << "Invalid Restaurant ID." << std::endl;
+        cout << "Invalid Restaurant ID." << endl;
         return;
     }
 
-    std::cout << "\n--- Apply Filters (Optional) ---" << std::endl;
+    cout << "\n--- Apply Filters (Optional) ---" << endl;
     
-    // *** ADD VALIDATION ***
-    std::cout << "Cuisine (1:Indian, 2:Italian, 3:Chinese, 4:Mexican, 5:Japanese, 0:Any): ";
+    cout << "Cuisine (1:Indian, 2:Italian, 3:Chinese, 4:Mexican, 5:Japanese, 0:Any): ";
     int c;
-    while (!(std::cin >> c) || c < 0 || c > 5) { // 5 is max enum val, 0 is 'Any'
-        std::cout << "Invalid input. Please enter a number (0-5): ";
-        std::cin.clear();
-        std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+    while (!(cin >> c) || c < 0 || c > 5) {
+        cout << "Invalid input. Please enter a number (0-5): ";
+        cin.clear();
+        cin.ignore(numeric_limits<streamsize>::max(), '\n');
     }
-    if (c > 0 && c <= 5) cuisineFilter = static_cast<CuisineType>(c-1);
+    // Set string filter based on input
+    if (c == 1) cuisineFilter = CUISINE_INDIAN;
+    else if (c == 2) cuisineFilter = CUISINE_ITALIAN;
+    else if (c == 3) cuisineFilter = CUISINE_CHINESE;
+    else if (c == 4) cuisineFilter = CUISINE_MEXICAN;
+    else if (c == 5) cuisineFilter = CUISINE_JAPANESE;
+    else if (c == 0) cuisineFilter = CUISINE_ANY;
     
-    // *** ADD VALIDATION ***
-    std::cout << "Course (1:Lunch, 2:Dinner, 0:Any): ";
+    cout << "Course (1:Lunch, 2:Dinner, 0:Any): ";
     int cs;
-    while (!(std::cin >> cs) || (cs != 0 && cs != 1 && cs != 2)) {
-        std::cout << "Invalid input. Please enter 0, 1, or 2: ";
-        std::cin.clear();
-        std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+    while (!(cin >> cs) || (cs != 0 && cs != 1 && cs != 2)) {
+        cout << "Invalid input. Please enter 0, 1, or 2: ";
+        cin.clear();
+        cin.ignore(numeric_limits<streamsize>::max(), '\n');
     }
-    if (cs == 1) courseFilter = CourseType::LUNCH;
-    if (cs == 2) courseFilter = CourseType::DINNER;
+    if (cs == 1) courseFilter = COURSE_LUNCH;
+    else if (cs == 2) courseFilter = COURSE_DINNER;
+    else if (cs == 0) courseFilter = COURSE_ANY;
     
-    // *** ADD VALIDATION ***
-    std::cout << "Type (1:Veg, 2:Non-Veg, 0:Both): ";
+    cout << "Type (1:Veg, 2:Non-Veg, 0:Both): ";
     int t;
-    while (!(std::cin >> t) || t < 0 || t > 2) {
-        std::cout << "Invalid input. Please enter 0, 1, or 2: ";
-        std::cin.clear();
-        std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+    while (!(cin >> t) || t < 0 || t > 2) {
+        cout << "Invalid input. Please enter 0, 1, or 2: ";
+        cin.clear();
+        cin.ignore(numeric_limits<streamsize>::max(), '\n');
     }
-    if (t == 1) typeFilter = DishType::VEG;
-    if (t == 2) typeFilter = DishType::NON_VEG;
+    if (t == 1) typeFilter = DISH_VEG;
+    else if (t == 2) typeFilter = DISH_NON_VEG;
+    else if (t == 0) typeFilter = DISH_BOTH;
 
     Cart customerCart;
-    std::vector<Dish> availableDishes = selectedRestaurant->getMenu().filterDishes(cuisineFilter, courseFilter, typeFilter);
+    // Pass string filters
+    vector<Dish> availableDishes = selectedRestaurant->getMenu().filterDishes(cuisineFilter, courseFilter, typeFilter);
     
-    std::cout << "\n--- Available Dishes at " << selectedRestaurant->getName() << " ---" << std::endl;
+    cout << "\n--- Available Dishes at " << selectedRestaurant->getName() << " ---" << endl;
     if (availableDishes.empty()) {
-        std::cout << "No dishes match your filters." << std::endl;
+        cout << "No dishes match your filters." << endl;
         return;
     }
     for (const auto& dish : availableDishes) {
         dish.display();
     }
     
-    std::string dishInput;
-    // *** FIX 2: Change prompt to ask for ID ***
-    std::cout << "Enter dish ID to add (e.g., D257) (or 'DONE'): ";
-    std::cin.ignore(); // Clear the \n from the last std::cin >> t;
+    string dishInput;
+    cout << "Enter dish ID to add (e.g., D257) (or 'DONE'): ";
+    cin.ignore(); 
     
-    std::getline(std::cin, dishInput);
-    // *** DISH NOT FOUND FIX 1 ***
-    // Remove trailing carriage return '\r' if it exists (common on Windows)
+    getline(cin, dishInput);
     if (!dishInput.empty() && dishInput.back() == '\r') {
         dishInput.pop_back();
     }
 
     while (dishInput != "DONE") {
-        // *** FIX 3: Change find_if to use getId() ***
-        auto it = std::find_if(availableDishes.begin(), availableDishes.end(), 
+        auto it = find_if(availableDishes.begin(), availableDishes.end(), 
                                 [&](const Dish& d){ return d.getId() == dishInput; });
         if (it != availableDishes.end()) {
             customerCart.addItem(*it);
         } else {
-            std::cout << "Dish not found." << std::endl;
+            cout << "Dish not found." << endl;
         }
-        // *** FIX 4: Change prompt to ask for ID ***
-        std::cout << "Enter dish ID to add (e.g., D257) (or 'DONE'): ";
+        cout << "Enter dish ID to add (e.g., D257) (or 'DONE'): ";
         
-        std::getline(std::cin, dishInput);
-        // *** DISH NOT FOUND FIX 2 ***
-        // Also apply the fix inside the loop
+        getline(cin, dishInput);
         if (!dishInput.empty() && dishInput.back() == '\r') {
             dishInput.pop_back();
         }
     }
 
     if (customerCart.isEmpty()) {
-        std::cout << "Order cancelled." << std::endl;
+        cout << "Order cancelled." << endl;
         return;
     }
 
     Order* newOrder = new Order(customer, selectedRestaurant, customerCart);
-    std::cout << "\n--- Offers ---" << std::endl;
+    cout << "\n--- Offers ---" << endl;
     for (const auto& offer : manager.getOffers()) {
-        std::cout << "- Code: " << offer.getCode() << std::endl;
+        cout << "- Code: " << offer.getCode() << endl;
     }
-    std::string promo;
-    std::cout << "Enter promo code (or 'NONE'): ";
-    std::cin >> promo;
+    string promo;
+    cout << "Enter promo code (or 'NONE'): ";
+    cin >> promo;
     if (promo != "NONE") {
-        auto it = std::find_if(manager.getOffers().begin(), manager.getOffers().end(), 
+        auto it = find_if(manager.getOffers().begin(), manager.getOffers().end(), 
                                 [&](const Offer& o){ return o.getCode() == promo; });
         if (it != manager.getOffers().end()) {
             newOrder->applyOffer(*it, customer);
         } else {
-            std::cout << "Invalid promo code." << std::endl;
+            cout << "Invalid promo code." << endl;
         }
     }
 
     newOrder->displayDetails();
-    std::cout << "\n--- Payment ---" << std::endl;
-    std::cout << "1. UPI\n2. COD\nSelect payment mode: ";
+    cout << "\n--- Payment ---" << endl;
+    cout << "1. UPI\n2. COD\nSelect payment mode: ";
     
-    // *** ADD VALIDATION ***
     int paymentChoice;
-    while (!(std::cin >> paymentChoice) || (paymentChoice != 1 && paymentChoice != 2)) {
-        std::cout << "Invalid choice. Please enter 1 for UPI or 2 for COD: ";
-        std::cin.clear();
-        std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+    while (!(cin >> paymentChoice) || (paymentChoice != 1 && paymentChoice != 2)) {
+        cout << "Invalid choice. Please enter 1 for UPI or 2 for COD: ";
+        cin.clear();
+        cin.ignore(numeric_limits<streamsize>::max(), '\n');
     }
 
     Payment* paymentMethod = nullptr;
     if (paymentChoice == 1) paymentMethod = new UPIPayment();
     else if (paymentChoice == 2) paymentMethod = new COD();
-    else { std::cout << "Invalid payment mode." << std::endl; delete newOrder; return; } // This line is now redundant but safe
+    else { cout << "Invalid payment mode." << endl; delete newOrder; return; } 
 
     if (paymentMethod->processPayment(newOrder->getFinalAmount())) {
-        std::cout << "✅ Payment successful via " << paymentMethod->getMode() << "!" << std::endl;
+        cout << "✅ Payment successful via " << paymentMethod->getMode() << "!" << endl;
         manager.placeOrder(newOrder);
     } else {
-        std::cout << "❌ Payment failed. Order cancelled." << std::endl;
+        cout << "❌ Payment failed. Order cancelled." << endl;
         delete newOrder;
         return;
     }
     delete paymentMethod;
 
-    manager.updateOrderStatus(newOrder->getId(), OrderStatus::PREPARING);
+    // Pass string constant
+    manager.updateOrderStatus(newOrder->getId(), STATUS_PREPARING);
     Chat chat(newOrder->getId());
-    chat.autoGenerateMessage(OrderStatus::PREPARING);
+    chat.autoGenerateMessage(STATUS_PREPARING); // Pass string constant
 
-    std::cout << "\n[Simulating Delivery Process...]" << std::endl;
-    manager.updateOrderStatus(newOrder->getId(), OrderStatus::OUT_FOR_DELIVERY);
-    chat.autoGenerateMessage(OrderStatus::OUT_FOR_DELIVERY);
+    cout << "\n[Simulating Delivery Process...]" << endl;
+    manager.updateOrderStatus(newOrder->getId(), STATUS_OUT_FOR_DELIVERY);
+    chat.autoGenerateMessage(STATUS_OUT_FOR_DELIVERY);
 
     chat.sendMessage(customer->getName(), "Hi, please come to gate 3.");
     chat.sendMessage("DeliveryPartner", "Sure, on the way, arriving in 5 mins!");
     chat.displayHistory();
 
-    manager.updateOrderStatus(newOrder->getId(), OrderStatus::DELIVERED);
-    chat.autoGenerateMessage(OrderStatus::DELIVERED);
+    manager.updateOrderStatus(newOrder->getId(), STATUS_DELIVERED);
+    chat.autoGenerateMessage(STATUS_DELIVERED);
 
-    // *** ADD VALIDATION ***
     int tip;
-    std::cout << "\n--- Tip Delivery Partner ---" << std::endl;
-    std::cout << "Tip (e.g., 5, 10, 20): $";
-    while (!(std::cin >> tip) || tip < 0) {
-        std::cout << "Invalid amount. Please enter a positive number (or 0): $";
-        std::cin.clear();
-        std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+    cout << "\n--- Tip Delivery Partner ---" << endl;
+    cout << "Tip (e.g., 5, 10, 20): $";
+    while (!(cin >> tip) || tip < 0) {
+        cout << "Invalid amount. Please enter a positive number (or 0): $";
+        cin.clear();
+        cin.ignore(numeric_limits<streamsize>::max(), '\n');
     }
     newOrder->addTip(tip);
-    std::cout << "Tip of $" << tip << " added to final bill." << std::endl;
+    cout << "Tip of $" << tip << " added to final bill." << endl;
 
-    // *** ADD VALIDATION ***
     int foodRating, deliveryRating;
-    std::string feedback;
-    std::cout << "\n--- Rate Your Experience (1-5 Stars) ---" << std::endl;
-    std::cout << "Food Rating: ";
-    while (!(std::cin >> foodRating) || foodRating < 1 || foodRating > 5) {
-        std::cout << "Invalid rating. Please enter a number between 1 and 5: ";
-        std::cin.clear();
-        std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+    string feedback;
+    cout << "\n--- Rate Your Experience (1-5 Stars) ---" << endl;
+    cout << "Food Rating: ";
+    while (!(cin >> foodRating) || foodRating < 1 || foodRating > 5) {
+        cout << "Invalid rating. Please enter a number between 1 and 5: ";
+        cin.clear();
+        cin.ignore(numeric_limits<streamsize>::max(), '\n');
     }
-    std::cout << "Delivery Rating: ";
-    while (!(std::cin >> deliveryRating) || deliveryRating < 1 || deliveryRating > 5) {
-        std::cout << "Invalid rating. Please enter a number between 1 and 5: ";
-        std::cin.clear();
-        std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+    cout << "Delivery Rating: ";
+    while (!(cin >> deliveryRating) || deliveryRating < 1 || deliveryRating > 5) {
+        cout << "Invalid rating. Please enter a number between 1 and 5: ";
+        cin.clear();
+        cin.ignore(numeric_limits<streamsize>::max(), '\n');
     }
 
-    std::cout << "Write feedback (one line): ";
-    std::cin.ignore();
-    std::getline(std::cin, feedback);
+    cout << "Write feedback (one line): ";
+    cin.ignore();
+    getline(cin, feedback);
 
-    // *** FIX 5: Also add carriage return fix for feedback string ***
     if (!feedback.empty() && feedback.back() == '\r') {
         feedback.pop_back();
     }
 
     Rating().apply(newOrder, manager, foodRating, deliveryRating, feedback);
 
-    std::cout << "\nThank you for ordering from FoodMate! Have a great day!" << std::endl;
+    cout << "\nThank you for ordering from FoodMate! Have a great day!" << endl;
 }
 
 void runOwnerFlow(RestaurantOwner* owner, SystemManager& manager) {
     if (!owner) return;
     
-    std::cout << "\n### Restaurant Owner Dashboard ###" << std::endl;
+    cout << "\n### Restaurant Owner Dashboard ###" << endl;
     owner->viewProfile();
     
     if (owner->getOwnedRestaurants().empty()) {
-        std::cout << "\nNo restaurants owned. Adding a sample restaurant for you." << std::endl;
-        Restaurant* newRest = new Restaurant("New Cafe", CuisineType::OTHER, owner->getName() + "@mail.com");
-        // FIX FOR LINE 959 (Part 2): Use the new public method to add the restaurant.
+        cout << "\nNo restaurants owned. Adding a sample restaurant for you." << endl;
+        Restaurant* newRest = new Restaurant("New Cafe", CUISINE_OTHER, owner->getName() + "@mail.com");
         manager.addRestaurant(newRest);
         owner->addRestaurant(newRest);
     }
 
     Restaurant* myRest = owner->getOwnedRestaurants()[0];
 
-    std::cout << "\nManaging Menu for: " << myRest->getName() << std::endl;
+    cout << "\nManaging Menu for: " << myRest->getName() << endl;
     
-    // *** ADD VALIDATION ***
-    std::cout << "1. Add Dish\n2. View Menu\n3. Back\nSelect option: ";
+    cout << "1. Add Dish\n2. View Menu\n3. Back\nSelect option: ";
     int choice;
-    while (!(std::cin >> choice) || choice < 1 || choice > 3) {
-        std::cout << "Invalid choice. Please enter 1, 2, or 3: ";
-        std::cin.clear();
-        std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+    while (!(cin >> choice) || choice < 1 || choice > 3) {
+        cout << "Invalid choice. Please enter 1, 2, or 3: ";
+        cin.clear();
+        cin.ignore(numeric_limits<streamsize>::max(), '\n');
     }
     
-    // *** ADD VALIDATION AND FIX ENUM LOGIC ***
     if (choice == 1) {
-        std::string n; double p; int t_in, c_in, cs_in;
-        std::cout << "Dish Name: "; std::cin.ignore(); std::getline(std::cin, n);
-        // *** FIX 6: Also add carriage return fix for this string ***
+        string n; double p; int t_in, c_in, cs_in;
+        cout << "Dish Name: "; cin.ignore(); getline(cin, n);
         if (!n.empty() && n.back() == '\r') {
             n.pop_back();
         }
         
-        std::cout << "Price: $";
-        while (!(std::cin >> p) || p <= 0) {
-            std::cout << "Invalid input. Please enter a valid price (e.g., 12.50): $";
-            std::cin.clear();
-            std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+        cout << "Price: $";
+        while (!(cin >> p) || p <= 0) {
+            cout << "Invalid input. Please enter a valid price (e.g., 12.50): $";
+            cin.clear();
+            cin.ignore(numeric_limits<streamsize>::max(), '\n');
         }
 
-        std::cout << "Type (1:Veg, 2:Non-Veg): ";
-        while (!(std::cin >> t_in) || (t_in != 1 && t_in != 2)) {
-            std::cout << "Invalid input. Please enter 1 for Veg or 2 for Non-Veg: ";
-            std::cin.clear();
-            std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+        cout << "Type (1:Veg, 2:Non-Veg): ";
+        while (!(cin >> t_in) || (t_in != 1 && t_in != 2)) {
+            cout << "Invalid input. Please enter 1 for Veg or 2 for Non-Veg: ";
+            cin.clear();
+            cin.ignore(numeric_limits<streamsize>::max(), '\n');
         }
-        DishType dishT = (t_in == 1) ? DishType::VEG : DishType::NON_VEG;
+        string dishT = (t_in == 1) ? DISH_VEG : DISH_NON_VEG; // Set string
 
-
-        std::cout << "Cuisine (0:Indian, 1:Italian, 2:Chinese, 3:Mexican, 4:Japanese, 5:Other): ";
-        while (!(std::cin >> c_in) || c_in < 0 || c_in > 5) { // Fixed range 0-5
-            std::cout << "Invalid input. Please enter a number between 0 and 5: ";
-            std::cin.clear();
-            std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+        cout << "Cuisine (0:Indian, 1:Italian, 2:Chinese, 3:Mexican, 4:Japanese, 5:Other): ";
+        while (!(cin >> c_in) || c_in < 0 || c_in > 5) {
+            cout << "Invalid input. Please enter a number between 0 and 5: ";
+            cin.clear();
+            cin.ignore(numeric_limits<streamsize>::max(), '\n');
         }
-        CuisineType dishC = static_cast<CuisineType>(c_in);
-
-        std::cout << "Course (0:Breakfast, 1:Brunch, 2:Lunch, 3:Snacks, 4:Dinner, 5:Dessert, 6:Any): ";
-        while (!(std::cin >> cs_in) || cs_in < 0 || cs_in > 6) { // Fixed range 0-6
-            std::cout << "Invalid input. Please enter a number between 0 and 6: ";
-            std::cin.clear();
-            std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+        // Map int to string constant
+        string dishC;
+        switch (c_in) {
+            case 0: dishC = CUISINE_INDIAN; break;
+            case 1: dishC = CUISINE_ITALIAN; break;
+            case 2: dishC = CUISINE_CHINESE; break;
+            case 3: dishC = CUISINE_MEXICAN; break;
+            case 4: dishC = CUISINE_JAPANESE; break;
+            default: dishC = CUISINE_OTHER;
         }
-        CourseType dishCS = static_cast<CourseType>(cs_in);
+
+        cout << "Course (0:Breakfast, 1:Brunch, 2:Lunch, 3:Snacks, 4:Dinner, 5:Dessert, 6:Any): ";
+        while (!(cin >> cs_in) || cs_in < 0 || cs_in > 6) {
+            cout << "Invalid input. Please enter a number between 0 and 6: ";
+            cin.clear();
+            cin.ignore(numeric_limits<streamsize>::max(), '\n');
+        }
+        // Map int to string constant
+        string dishCS;
+        switch (cs_in) {
+            case 0: dishCS = COURSE_BREAKFAST; break;
+            case 1: dishCS = COURSE_BRUNCH; break;
+            case 2: dishCS = COURSE_LUNCH; break;
+            case 3: dishCS = COURSE_SNACKS; break;
+            case 4: dishCS = COURSE_DINNER; break;
+            case 5: dishCS = COURSE_DESSERT; break;
+            default: dishCS = COURSE_ANY;
+        }
         
-        myRest->getMenu().addDish({n, p, dishT, dishC, dishCS});
-        std::cout << "Dish '" << n << "' added to the menu." << std::endl; // Added feedback here
+        myRest->getMenu().addDish({n, p, dishT, dishC, dishCS}); // Pass strings
+        cout << "Dish '" << n << "' added to the menu." << endl;
     } else if (choice == 2) {
-        std::cout << "\n--- Current Menu ---" << std::endl;
+        cout << "\n--- Current Menu ---" << endl;
         for (const auto& dish : myRest->getMenu().getAllDishes()) {
             dish.display();
         }
@@ -1038,31 +1044,29 @@ void runOwnerFlow(RestaurantOwner* owner, SystemManager& manager) {
 void runPartnerFlow(DeliveryPartner* partner, SystemManager& manager) {
     if (!partner) return;
     
-    std::cout << "\n### Delivery Partner Dashboard ###" << std::endl;
+    cout << "\n### Delivery Partner Dashboard ###" << endl;
     partner->viewProfile();
-    std::cout << "\nNo new delivery assignments in the current simulation." << std::endl;
+    cout << "\nNo new delivery assignments in the current simulation." << endl;
 }
 
 User* handleLoginOrRegister(SystemManager& manager, char userType) {
-    std::string id, pass, name, extra, address;
+    string id, pass, name, extra, address;
     User* currentUser = nullptr;
 
-    // *** ADD VALIDATION ***
-    std::cout << "\n---\n1. Login\n2. Register\nSelect Option: ";
+    cout << "\n---\n1. Login\n2. Register\nSelect Option: ";
     int choice;
-    while (!(std::cin >> choice) || (choice != 1 && choice != 2)) {
-        std::cout << "Invalid choice. Please enter 1 or 2: ";
-        std::cin.clear();
-        std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+    while (!(cin >> choice) || (choice != 1 && choice != 2)) {
+        cout << "Invalid choice. Please enter 1 or 2: ";
+        cin.clear();
+        cin.ignore(numeric_limits<streamsize>::max(), '\n');
     }
 
     if (choice == 2) {
-        std::cout << "Enter Name: "; std::cin >> name;
-        std::cout << "Enter Password: "; std::cin >> pass;
+        cout << "Enter Name: "; cin >> name;
+        cout << "Enter Password: "; cin >> pass;
 
         if (userType == 'a') {
-            std::cout << "Enter Delivery Address: "; std::cin.ignore(); std::getline(std::cin, address);
-            // *** FIX 7: Also add carriage return fix for this string ***
+            cout << "Enter Delivery Address: "; cin.ignore(); getline(cin, address);
             if (!address.empty() && address.back() == '\r') {
                 address.pop_back();
             }
@@ -1070,7 +1074,7 @@ User* handleLoginOrRegister(SystemManager& manager, char userType) {
         } else if (userType == 'b') {
             currentUser = new RestaurantOwner(name, pass);
         } else if (userType == 'c') {
-            std::cout << "Enter Vehicle Type (Bike/Car): "; std::cin >> extra;
+            cout << "Enter Vehicle Type (Bike/Car): "; cin >> extra;
             currentUser = new DeliveryPartner(name, pass, extra);
         }
         
@@ -1082,8 +1086,8 @@ User* handleLoginOrRegister(SystemManager& manager, char userType) {
         return nullptr;
 
     } else if (choice == 1) {
-        std::cout << "Enter User ID: "; std::cin >> id;
-        std::cout << "Enter Password: "; std::cin >> pass;
+        cout << "Enter User ID: "; cin >> id;
+        cout << "Enter Password: "; cin >> pass;
         
         User* tempUser = manager.findUser(id);
         if (tempUser && tempUser->login(id, pass)) {
@@ -1093,11 +1097,11 @@ User* handleLoginOrRegister(SystemManager& manager, char userType) {
                 (userType == 'c' && dynamic_cast<DeliveryPartner*>(currentUser))) {
                 return currentUser;
             }
-            std::cout << "Login failed: User type mismatch or ID not found." << std::endl;
+            cout << "Login failed: User type mismatch or ID not found." << endl;
             currentUser->logout();
             return nullptr;
         }
-        std::cout << "Login failed: Invalid ID or Password." << std::endl;
+        cout << "Login failed: Invalid ID or Password." << endl;
         return nullptr;
     }
     return nullptr;
@@ -1109,50 +1113,46 @@ int main() {
     char userTypeChoice;
     User* loggedInUser = nullptr;
 
-    std::cout << "\n=======================================" << std::endl;
-    std::cout << "   ✨ Welcome to FoodMate! (C++ OOP)" << std::endl;
-    std::cout << "=======================================" << std::endl;
+    cout << "\n=======================================" << endl;
+    cout << "   ✨ Welcome to FoodMate! (C++ OOP)" << endl;
+    cout << "=======================================" << endl;
 
-    // *** FIX: Add a main application loop ***
     bool appRunning = true;
     while (appRunning) {
-        loggedInUser = nullptr; // Reset loggedInUser at the start of each loop
+        loggedInUser = nullptr; 
 
-        std::cout << "\n--- Main Menu ---" << std::endl;
-        std::cout << "1. Login as:\n   a) Customer\n   b) Restaurant Owner\n   c) Delivery Partner\n   q) Quit Application\nSelect User Type (a/b/c/q): ";
-        std::cin >> userTypeChoice;
+        cout << "\n--- Main Menu ---" << endl;
+        cout << "1. Login as:\n   a) Customer\n   b) Restaurant Owner\n   c) Delivery Partner\n   q) Quit Application\nSelect User Type (a/b/c/q): ";
+        cin >> userTypeChoice;
         
-        // Clear buffer
-        std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n'); 
+        cin.ignore(numeric_limits<streamsize>::max(), '\n'); 
 
         if (userTypeChoice == 'q') {
             appRunning = false;
-            std::cout << "\nThank you for using FoodMate. Goodbye!" << std::endl;
-            continue; // Skip to next loop iteration, which will exit
+            cout << "\nThank you for using FoodMate. Goodbye!" << endl;
+            continue; 
         }
 
         if (userTypeChoice == 'a' || userTypeChoice == 'b' || userTypeChoice == 'c') {
             loggedInUser = handleLoginOrRegister(manager, userTypeChoice);
         } else {
-            std::cout << "Invalid choice. Please select 'a', 'b', 'c', or 'q'." << std::endl;
-            continue; // Go back to the start of the while(appRunning) loop
+            cout << "Invalid choice. Please select 'a', 'b', 'c', or 'q'." << endl;
+            continue; 
         }
 
-        // If login was successful, run the appropriate flow
-        if (loggedInUser) {
+        if (loggedInUser){
             if (Customer* cust = dynamic_cast<Customer*>(loggedInUser)) {
                 runCustomerFlow(cust, manager);
+                
             } else if (RestaurantOwner* owner = dynamic_cast<RestaurantOwner*>(loggedInUser)) {
                 runOwnerFlow(owner, manager);
             } else if (DeliveryPartner* partner = dynamic_cast<DeliveryPartner*>(loggedInUser)) {
                 runPartnerFlow(partner, manager);
             }
             
-            // Log out the user after their flow is complete
             loggedInUser->logout();
-            loggedInUser = nullptr; // Explicitly set to null
+            loggedInUser = nullptr; 
         }
-        // The loop will now repeat, showing the main menu again
     }
     
     return 0;
