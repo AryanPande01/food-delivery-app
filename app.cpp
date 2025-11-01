@@ -103,11 +103,21 @@ private:
     string course;  // Changed from CourseType
     double rating;
     int ratingCount;
+
 public:
     // Constructor updated to take strings
-    Dish(const string& n, double p, const string& t, const string& c, const string& cs)
-        : dishId("D" + to_string(rand() % 1000 + 100)), name(n), price(p), type(t), cuisine(c), course(cs), rating(0.0), ratingCount(0) {}
+    Dish(const string& n, double p, const string& t, const string& c, const string& cs){
+       this->dishId = "D" + to_string(rand() % 1000 + 100);
+       this->name = n;
+       this->price = p;
+       this->type = t;
+       this->cuisine = c;
+       this->course = cs;
+       this->rating = 0.0;
+       this->ratingCount = 0;
+    }
 
+    //getter setters , since the name, id etc... are declared as private in the class dish
     const string& getName() const { return name; }
     const string& getId() const { return dishId; }
     double getPrice() const { return price; }
@@ -144,10 +154,14 @@ public:
     }
 
     void removeDish(const string& dishName) {
-        dishes.erase(remove_if(dishes.begin(), dishes.end(),
-                                     [&](const Dish& d){ return d.getName() == dishName; }),
-                                     dishes.end());
+    for (int i = 0; i < dishes.size(); i++) {
+        if (dishes[i].getName() == dishName) {
+            dishes.erase(dishes.begin() + i);
+            i--; // step back since erase shifts elements
+        }
     }
+}
+
 
     // Updated to take and check strings
     vector<Dish> filterDishes(const string& c, const string& cs, const string& t) const {
@@ -165,10 +179,14 @@ public:
     }
     
     Dish* getDishByName(const string& name) {
-        auto it = find_if(dishes.begin(), dishes.end(),
-                                [&](const Dish& d){ return d.getName() == name; });
-        return (it != dishes.end() ? &(*it) : nullptr);
+    for (int i = 0; i < dishes.size(); i++) {
+        if (dishes[i].getName() == name) {
+            return &dishes[i];  // return pointer to that dish
+        }
     }
+    return nullptr; // if not found
+    }
+
     
     const vector<Dish>& getAllDishes() const { return dishes; }
 };
