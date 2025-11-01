@@ -1,6 +1,6 @@
 #include <iostream>
 #include <vector>
-#include <string>
+#include <string>//for string 
 #include <sstream>
 #include <iomanip>
 #include <map>
@@ -674,6 +674,7 @@ public:
                 break;
             }
         }
+
         if (partner) {
             order->assignPartner(partner->getId());
             partner->startDelivery();
