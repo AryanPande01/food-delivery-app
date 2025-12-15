@@ -90,3 +90,32 @@ FoodMate supports three distinct user roles:
 
 1. Clone the repository
 2. Compile using any modern C++ compiler:
+
+
+---
+
+## 📌 Sample Workflow
+
+1. Login/Register as Customer
+2. Browse restaurants and apply filters
+3. Add dishes to cart
+4. Apply promo codes
+5. Make payment
+6. Track order & chat
+7. Rate food and delivery
+
+---
+
+## 📈 Why This Project?
+
+This project was built to:
+- Simulate a real-world system using pure C++
+- Practice large-scale OOP design
+- Strengthen system thinking beyond simple DSA problems
+
+---
+
+## 👨‍💻 Author
+
+Built with ❤️ by **Aryan**  
+A hands-on C++ & Full Stack Developer exploring system design through real-world simulations.
